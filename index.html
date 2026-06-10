@@ -133,7 +133,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="s-card" data-strategy="freq" onclick="selectStrategy(this)">
         <div class="s-ico">📊</div>
         <div class="s-name">빈도수 전략</div>
-        <div class="s-desc">최근 100회 자주 등장한 번호 우선 선택</div>
+        <div class="s-desc">최근 200회 자주 등장한 번호 우선 선택</div>
       </div>
       <div class="s-card" data-strategy="zone" onclick="selectStrategy(this)">
         <div class="s-ico">🔲</div>
@@ -179,7 +179,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
 
   <div class="section">
-    <div class="section-label">번호 통계</div>
+    <div class="section-label">번호 통계 <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--text3);font-size:11px">· 최근 200회 기준</span></div>
     <div class="card">
       <div class="tab-row">
         <button class="tab active" onclick="switchTab('hot',this)">자주 나온 번호</button>
@@ -543,7 +543,7 @@ async function init() {
     document.getElementById('hot-grid').innerHTML =
       '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 최근 100회 분석 중...</div>';
 
-    const startNo = Math.max(1, latestNo - 199);
+    const startNo = Math.max(1, latestNo - 99);
     const rounds = Array.from({length: latestNo - startNo + 1}, (_, i) => startNo + i);
 
     // 10개씩 묶어서 수집
