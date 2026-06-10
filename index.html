@@ -543,7 +543,7 @@ async function init() {
     document.getElementById('hot-grid').innerHTML =
       '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 최근 100회 분석 중...</div>';
 
-    const startNo = Math.max(1, latestNo - 99);
+    const startNo = Math.max(1, latestNo - 199);
     const rounds = Array.from({length: latestNo - startNo + 1}, (_, i) => startNo + i);
 
     // 10개씩 묶어서 수집
