@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="로또 추천">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
+<title>로또 번호 추천</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f4;--bg3:#ebebeb;
+  --text:#1a1a1a;--text2:#6b7280;--text3:#9ca3af;
+  --border:#e5e7eb;--border2:#d1d5db;
+  --blue:#3b82f6;--blue-bg:#eff6ff;
+  --radius:12px;--radius-sm:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+    --text:#f2f2f7;--text2:#98989f;--text3:#636366;
+    --border:#3a3a3c;--border2:#48484a;--blue-bg:#1e3a5f;
+  }
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.app{max-width:680px;margin:0 auto;padding:1.25rem 1rem 2rem}
+
+/* Header */
+.header{text-align:center;padding:1.5rem 0 1.25rem}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:999px;padding:5px 14px;font-size:12px;color:var(--text2);margin-bottom:14px}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;animation:pulse 2s infinite}
+.badge-dot.error{background:#ef4444;animation:none}
+.badge-dot.loading{background:#f59e0b}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.header h1{font-size:24px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px}
+.header p{font-size:13px;color:var(--text2)}
+
+/* Countdown */
+.countdown{display:flex;justify-content:center;align-items:center;gap:6px;margin:14px 0 0}
+.cd-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;min-width:58px}
+.cd-num{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.cd-sep{font-size:20px;font-weight:300;color:var(--text3);padding-bottom:6px}
+.cd-label{font-size:10px;color:var(--text2);margin-top:4px;letter-spacing:0.05em}
+
+/* Section */
+.section{margin-top:1.5rem}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem}
+
+/* Prev draw */
+.prev-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.prev-round{font-size:14px;font-weight:700}
+.prev-date{font-size:12px;color:var(--text2)}
+.balls-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ball{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+.ball-bonus{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;border:2.5px dashed var(--border2);color:var(--text2);flex-shrink:0}
+.ball-sep{font-size:16px;color:var(--text3)}
+
+/* Strategy */
+.strategy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.s-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative;user-select:none;-webkit-tap-highlight-color:transparent}
+.s-card:hover{border-color:var(--border2);background:var(--bg2)}
+.s-card.active{border-color:var(--blue);background:var(--blue-bg)}
+.s-ico{font-size:22px;margin-bottom:7px}
+.s-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.s-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.s-rec{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e}
+@media(prefers-color-scheme:dark){.s-rec{background:#451a03;color:#fcd34d}}
+
+/* Recommend */
+.rec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rec-title{font-size:15px;font-weight:700}
+.btn-regen{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 13px;font-size:12px;cursor:pointer;color:var(--text);font-family:'Noto Sans KR',sans-serif;-webkit-tap-highlight-color:transparent}
+.btn-regen:hover{background:var(--bg2)}
+.combo-list{display:flex;flex-direction:column;gap:8px}
+.combo-item{background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.combo-idx{font-size:11px;font-weight:700;color:var(--text3);min-width:18px}
+.combo-balls{display:flex;gap:5px;flex:1}
+.combo-tag{font-size:10px;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--text2);white-space:nowrap;font-weight:500}
+.combo-save{background:transparent;border:none;cursor:pointer;font-size:20px;padding:0 2px;line-height:1;color:var(--text3);transition:color 0.1s;-webkit-tap-highlight-color:transparent}
+.combo-save:hover,.combo-save.saved{color:#f59e0b}
+.placeholder{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:14px}
+
+/* Saved */
+.saved-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.saved-item:last-child{border-bottom:none}
+.btn-del{background:transparent;border:none;cursor:pointer;font-size:16px;color:var(--text3);padding:0 4px;-webkit-tap-highlight-color:transparent}
+.btn-clear{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif}
+
+/* Stats */
+.tab-row{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--radius-sm);margin-bottom:14px}
+.tab{flex:1;padding:7px 4px;font-size:12px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:background 0.1s,color 0.1s;-webkit-tap-highlight-color:transparent}
+.tab.active{background:var(--bg);color:var(--text);border:1px solid var(--border);font-weight:700}
+.freq-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.freq-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;background:var(--bg2);border-radius:var(--radius-sm)}
+.freq-bar-wrap{height:36px;display:flex;align-items:flex-end;width:100%}
+.freq-bar{width:100%;border-radius:2px 2px 0 0}
+.freq-cnt{font-size:10px;color:var(--text2)}
+
+/* Loading / Error */
+.loading{text-align:center;padding:1.5rem;color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem;text-align:center;color:var(--text2);font-size:13px;line-height:1.7}
+
+/* Disclaimer */
+.disclaimer{margin-top:1.5rem;padding:1rem;background:var(--bg2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);text-align:center;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">
+      <span class="badge-dot loading" id="badge-dot"></span>
+      <span id="round-badge">데이터 불러오는 중...</span>
+    </div>
+    <h1>로또 번호 추천</h1>
+    <p>동행복권 실시간 데이터 · 재미 목적 통계 분석</p>
+  </div>
+
+  <!-- Countdown -->
+  <div class="countdown">
+    <div class="cd-box"><div class="cd-num" id="cd-d">--</div><div class="cd-label">일</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-box"><div class="cd-num" id="cd-h">--</div><div class="cd-label">시간</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-box"><div class="cd-num" id="cd-m">--</div><div class="cd-label">분</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-box"><div class="cd-num" id="cd-s">--</div><div class="cd-label">초</div></div>
+  </div>
+
+  <!-- Prev Draw -->
+  <div class="section">
+    <div class="section-label">지난 회 당첨번호</div>
+    <div class="card">
+      <div class="prev-meta">
+        <span class="prev-round" id="prev-round">불러오는 중...</span>
+        <span class="prev-date" id="prev-date"></span>
+      </div>
+      <div class="balls-row" id="prev-balls">
+        <div class="loading"><div class="spinner"></div> API 연결 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategy -->
+  <div class="section">
+    <div class="section-label">추천 전략 선택</div>
+    <div class="strategy-grid">
+      <div class="s-card" data-strategy="freq" onclick="selectStrategy(this)">
+        <div class="s-ico">📊</div>
+        <div class="s-name">빈도수 전략</div>
+        <div class="s-desc">최근 100회 기준 자주 등장한 번호 우선 선택</div>
+      </div>
+      <div class="s-card" data-strategy="zone" onclick="selectStrategy(this)">
+        <div class="s-ico">🔲</div>
+        <div class="s-name">구간 분산 전략</div>
+        <div class="s-desc">1~9, 10~19, 20~29, 30~39, 40~45 구간 균등 배분</div>
+      </div>
+      <div class="s-card" data-strategy="oddeven" onclick="selectStrategy(this)">
+        <div class="s-ico">⚖️</div>
+        <div class="s-name">홀짝 균형 전략</div>
+        <div class="s-desc">홀수 3개 + 짝수 3개의 균형 잡힌 조합 구성</div>
+      </div>
+      <div class="s-card" data-strategy="ai" onclick="selectStrategy(this)">
+        <div class="s-ico">✨</div>
+        <div class="s-name">AI 종합 추천</div>
+        <div class="s-desc">빈도·구간·홀짝 가중치 조합 최적 번호</div>
+        <div class="s-rec">추천</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommend -->
+  <div class="section">
+    <div class="section-label">추천 번호</div>
+    <div class="card">
+      <div class="rec-header">
+        <span class="rec-title" id="rec-title">전략을 선택하면 번호가 생성됩니다</span>
+        <button class="btn-regen" onclick="generateNumbers()" id="btn-regen" style="display:none">🔄 다시 생성</button>
+      </div>
+      <div class="combo-list" id="combo-list">
+        <div class="placeholder">위에서 전략을 선택해주세요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved -->
+  <div class="section" id="saved-section" style="display:none">
+    <div class="section-label">저장한 번호</div>
+    <div class="card">
+      <div class="rec-header">
+        <span class="rec-title">내 번호 <span id="saved-cnt"></span></span>
+        <button class="btn-clear" onclick="clearSaved()">전체 삭제</button>
+      </div>
+      <div id="saved-list"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section">
+    <div class="section-label">번호 통계</div>
+    <div class="card">
+      <div class="tab-row">
+        <button class="tab active" onclick="switchTab('hot',this)">자주 나온 번호</button>
+        <button class="tab" onclick="switchTab('cold',this)">오래 안 나온 번호</button>
+        <button class="tab" onclick="switchTab('zone',this)">구간별 빈도</button>
+      </div>
+      <div id="tab-hot">
+        <div class="freq-grid" id="hot-grid">
+          <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 데이터 분석 중...</div>
+        </div>
+      </div>
+      <div id="tab-cold" style="display:none"><div class="freq-grid" id="cold-grid"></div></div>
+      <div id="tab-zone" style="display:none">
+        <div style="position:relative;width:100%;height:200px">
+          <canvas id="zone-chart" role="img" aria-label="구간별 로또 번호 출현 빈도 막대 차트"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ 이 서비스는 재미와 통계 분석 목적입니다.<br>
+    로또는 완전한 무작위 추첨이며, 과거 데이터가 미래 당첨을 보장하지 않습니다.
+  </div>
+</div>
+
+<script>
+// ── 상태 ──────────────────────────────────────────
+let historyData = [];
+let latestRound = 0;
+let currentStrategy = null;
+let savedNumbers = JSON.parse(localStorage.getItem('lotto_saved') || '[]');
+let zoneChart = null;
+
+// ── API: 상대경로로 Vercel Function 호출 ──────────
+async function fetchRound(round) {
+  const res = await fetch(`/api/lotto?drwNo=${round}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function findLatest() {
+  // 현재 날짜 기반으로 예상 회차 계산 (2002년 12월 7일 1회 시작)
+  const start = new Date('2002-12-07');
+  const now = new Date();
+  const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
+  let hi = weeks + 2, lo = hi - 5;
+
+  // 이진 탐색으로 최신 회차 확정
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    try {
+      const d = await fetchRound(mid);
+      if (d.returnValue === 'success') lo = mid; else hi = mid - 1;
+    } catch { hi = mid - 1; }
+  }
+  return lo;
+}
+
+async function loadHistory(latest, n = 100) {
+  const start = Math.max(1, latest - n + 1);
+  const rounds = Array.from({ length: latest - start + 1 }, (_, i) => start + i);
+  // 병렬 호출 (5개씩 묶어서 서버 부하 방지)
+  const results = [];
+  for (let i = 0; i < rounds.length; i += 5) {
+    const batch = rounds.slice(i, i + 5).map(r => fetchRound(r).catch(() => null));
+    results.push(...await Promise.all(batch));
+  }
+  return results.filter(r => r && r.returnValue === 'success');
+}
+
+// ── 색상 ──────────────────────────────────────────
+function ballColor(n) {
+  if (n <= 10) return '#f59e0b';
+  if (n <= 20) return '#3b82f6';
+  if (n <= 30) return '#ef4444';
+  if (n <= 40) return '#6b7280';
+  return '#10b981';
+}
+
+function makeBall(n, size = 38) {
+  const el = document.createElement('div');
+  el.className = 'ball';
+  el.style.cssText = `width:${size}px;height:${size}px;font-size:${size < 32 ? 11 : 13}px;background:${ballColor(n)}`;
+  el.textContent = n;
+  return el;
+}
+
+// ── 카운트다운 ────────────────────────────────────
+function nextSaturday() {
+  const now = new Date();
+  const diff = ((6 - now.getDay()) + 7) % 7 || 7;
+  const sat = new Date(now);
+  sat.setDate(now.getDate() + diff);
+  sat.setHours(20, 45, 0, 0);
+  return sat;
+}
+function updateCountdown() {
+  let ms = Math.max(0, nextSaturday() - new Date());
+  const d = Math.floor(ms / 86400000); ms %= 86400000;
+  const h = Math.floor(ms / 3600000);  ms %= 3600000;
+  const m = Math.floor(ms / 60000);    ms %= 60000;
+  const s = Math.floor(ms / 1000);
+  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+}
+
+// ── 지난 회 렌더 ──────────────────────────────────
+function renderPrev(d) {
+  document.getElementById('prev-round').textContent = `제 ${d.drwNo}회 당첨번호`;
+  document.getElementById('prev-date').textContent = d.drwNoDate || '';
+  const row = document.getElementById('prev-balls');
+  row.innerHTML = '';
+  [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6].forEach(n => row.appendChild(makeBall(n)));
+  const sep = document.createElement('span'); sep.className='ball-sep'; sep.textContent='+';
+  row.appendChild(sep);
+  const bonus = document.createElement('div');
+  bonus.className = 'ball-bonus';
+  bonus.style.cssText = `width:38px;height:38px;font-size:13px`;
+  bonus.textContent = d.bnusNo;
+  row.appendChild(bonus);
+}
+
+// ── 통계 계산 ─────────────────────────────────────
+function calcFreq(data) {
+  const f = {};
+  for (let i = 1; i <= 45; i++) f[i] = 0;
+  data.forEach(d => [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6]
+    .forEach(n => { if (n) f[n]++; }));
+  return f;
+}
+function calcLastSeen(data) {
+  const ls = {};
+  for (let i = 1; i <= 45; i++) ls[i] = 999;
+  [...data].reverse().forEach((d, i) =>
+    [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6].forEach(n => {
+      if (n && ls[n] === 999) ls[n] = i;
+    })
+  );
+  return ls;
+}
+
+// ── 전략 ──────────────────────────────────────────
+function selectStrategy(el) {
+  document.querySelectorAll('.s-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentStrategy = el.dataset.strategy;
+  document.getElementById('btn-regen').style.display = 'flex';
+  generateNumbers();
+}
+
+function generateNumbers() {
+  if (!currentStrategy) return;
+  if (!historyData.length) {
+    document.getElementById('combo-list').innerHTML = '<div class="placeholder">데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.</div>';
+    return;
+  }
+  const freq = calcFreq(historyData);
+  const lastSeen = calcLastSeen(historyData);
+  const names = { freq:'빈도수 전략', zone:'구간 분산 전략', oddeven:'홀짝 균형 전략', ai:'AI 종합 추천' };
+  const tags  = { freq:'고빈도', zone:'균등분산', oddeven:'홀짝3:3', ai:'AI최적' };
+  document.getElementById('rec-title').textContent = names[currentStrategy];
+
+  const combos = Array.from({ length: 5 }, () => ({
+    nums: pickNums(freq, lastSeen, currentStrategy).sort((a,b)=>a-b),
+    tag: tags[currentStrategy]
+  }));
+  renderCombos(combos);
+}
+
+function pickNums(freq, lastSeen, strategy) {
+  let nums = [];
+  if (strategy === 'freq') {
+    const top20 = Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(([n])=>+n).slice(0,20);
+    while (nums.length < 6) { const p = top20[Math.floor(Math.random()*top20.length)]; if (!nums.includes(p)) nums.push(p); }
+  } else if (strategy === 'zone') {
+    const zones = [[1,9],[10,19],[20,29],[30,39],[40,45]];
+    [...zones].sort(()=>Math.random()-0.5).slice(0,5).forEach(([lo,hi]) => {
+      const pool = Array.from({length:hi-lo+1},(_,i)=>lo+i);
+      nums.push(pool[Math.floor(Math.random()*pool.length)]);
+    });
+    const rest = Array.from({length:45},(_,i)=>i+1).filter(n=>!nums.includes(n));
+    while (nums.length < 6) { const p = rest[Math.floor(Math.random()*rest.length)]; if (!nums.includes(p)) nums.push(p); }
+  } else if (strategy === 'oddeven') {
+    const odds  = Array.from({length:23},(_,i)=>i*2+1);
+    const evens = Array.from({length:22},(_,i)=>(i+1)*2);
+    const sh = a => [...a].sort(()=>Math.random()-0.5);
+    nums = [...sh(odds).slice(0,3), ...sh(evens).slice(0,3)];
+  } else {
+    const weights = {};
+    const total = historyData.length;
+    for (let n = 1; n <= 45; n++) {
+      const f = (freq[n] || 0) / total;
+      const cold = Math.min(lastSeen[n] || 50, 50) / 50;
+      weights[n] = f * 0.5 + cold * 0.3 + 0.2;
+    }
+    const wTotal = Object.values(weights).reduce((s,w)=>s+w,0);
+    let tries = 0;
+    while (nums.length < 6 && tries++ < 300) {
+      let r = Math.random() * wTotal;
+      for (let n = 1; n <= 45; n++) {
+        r -= weights[n];
+        if (r <= 0 && !nums.includes(n)) { nums.push(n); break; }
+      }
+    }
+    for (let n = 1; n <= 45 && nums.length < 6; n++) if (!nums.includes(n)) nums.push(n);
+  }
+  return nums;
+}
+
+// ── 조합 렌더 ─────────────────────────────────────
+function renderCombos(combos) {
+  const list = document.getElementById('combo-list');
+  list.innerHTML = '';
+  combos.forEach((c, i) => {
+    const item = document.createElement('div'); item.className='combo-item';
+    const idx = document.createElement('div'); idx.className='combo-idx'; idx.textContent=String(i+1).padStart(2,'0');
+    const balls = document.createElement('div'); balls.className='combo-balls';
+    c.nums.forEach(n => {
+      const b = document.createElement('div'); b.className='ball';
+      b.style.cssText=`width:33px;height:33px;font-size:12px;background:${ballColor(n)}`;
+      b.textContent=n; balls.appendChild(b);
+    });
+    const tag = document.createElement('div'); tag.className='combo-tag'; tag.textContent=c.tag;
+    const saveBtn = document.createElement('button'); saveBtn.className='combo-save';
+    const key = c.nums.join(',');
+    const isSaved = savedNumbers.some(s=>s.join(',')===key);
+    saveBtn.textContent = isSaved ? '★' : '☆';
+    if (isSaved) saveBtn.classList.add('saved');
+    saveBtn.onclick = () => toggleSave(c.nums, saveBtn);
+    item.append(idx, balls, tag, saveBtn);
+    list.appendChild(item);
+  });
+}
+
+// ── 저장 ──────────────────────────────────────────
+function toggleSave(nums, btn) {
+  const key = nums.join(',');
+  const idx = savedNumbers.findIndex(s=>s.join(',')===key);
+  if (idx >= 0) { savedNumbers.splice(idx,1); btn.textContent='☆'; btn.classList.remove('saved'); }
+  else { savedNumbers.push(nums); btn.textContent='★'; btn.classList.add('saved'); }
+  localStorage.setItem('lotto_saved', JSON.stringify(savedNumbers));
+  renderSaved();
+}
+function clearSaved() {
+  savedNumbers = [];
+  localStorage.setItem('lotto_saved','[]');
+  renderSaved();
+}
+function renderSaved() {
+  const sec = document.getElementById('saved-section');
+  document.getElementById('saved-cnt').textContent = `(${savedNumbers.length})`;
+  if (!savedNumbers.length) { sec.style.display='none'; return; }
+  sec.style.display='block';
+  const list = document.getElementById('saved-list');
+  list.innerHTML='';
+  savedNumbers.forEach((nums,i) => {
+    const item=document.createElement('div'); item.className='saved-item';
+    const lbl=document.createElement('span');
+    lbl.style.cssText='font-size:11px;color:var(--text3);min-width:20px;font-weight:700';
+    lbl.textContent=String(i+1).padStart(2,'0');
+    const balls=document.createElement('div'); balls.style.cssText='display:flex;gap:4px;flex:1';
+    nums.forEach(n => {
+      const b=document.createElement('div'); b.className='ball';
+      b.style.cssText=`width:28px;height:28px;font-size:11px;background:${ballColor(n)}`;
+      b.textContent=n; balls.appendChild(b);
+    });
+    const del=document.createElement('button'); del.className='btn-del'; del.textContent='✕';
+    del.onclick=()=>{ savedNumbers.splice(i,1); localStorage.setItem('lotto_saved',JSON.stringify(savedNumbers)); renderSaved(); };
+    item.append(lbl,balls,del); list.appendChild(item);
+  });
+}
+
+// ── 통계 렌더 ─────────────────────────────────────
+function renderHot(freq) {
+  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max = sorted[0][1];
+  const grid = document.getElementById('hot-grid');
+  grid.innerHTML='';
+  sorted.forEach(([n,cnt]) => {
+    const item=document.createElement('div'); item.className='freq-item';
+    const ball=document.createElement('div'); ball.className='ball';
+    ball.style.cssText=`width:32px;height:32px;font-size:12px;background:${ballColor(+n)}`;
+    ball.textContent=n;
+    const bw=document.createElement('div'); bw.className='freq-bar-wrap';
+    const bar=document.createElement('div'); bar.className='freq-bar';
+    bar.style.cssText=`height:${Math.round((cnt/max)*32)}px;background:${ballColor(+n)};opacity:0.6`;
+    bw.appendChild(bar);
+    const lbl=document.createElement('div'); lbl.className='freq-cnt'; lbl.textContent=`${cnt}회`;
+    item.append(ball,bw,lbl); grid.appendChild(item);
+  });
+}
+function renderCold(lastSeen) {
+  const sorted = Object.entries(lastSeen).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const grid = document.getElementById('cold-grid');
+  grid.innerHTML='';
+  sorted.forEach(([n,ago]) => {
+    const item=document.createElement('div'); item.className='freq-item';
+    const ball=document.createElement('div'); ball.className='ball';
+    ball.style.cssText=`width:32px;height:32px;font-size:12px;background:${ballColor(+n)};opacity:0.5`;
+    ball.textContent=n;
+    const spacer=document.createElement('div'); spacer.style.height='36px';
+    const lbl=document.createElement('div'); lbl.className='freq-cnt';
+    lbl.textContent=ago===999?'미출현':`${ago}회 전`;
+    item.append(ball,spacer,lbl); grid.appendChild(item);
+  });
+}
+function renderZone(freq) {
+  const zones=[
+    {label:'1~9',  nums:Array.from({length:9}, (_,i)=>i+1)},
+    {label:'10~19',nums:Array.from({length:10},(_,i)=>i+10)},
+    {label:'20~29',nums:Array.from({length:10},(_,i)=>i+20)},
+    {label:'30~39',nums:Array.from({length:10},(_,i)=>i+30)},
+    {label:'40~45',nums:Array.from({length:6}, (_,i)=>i+40)},
+  ];
+  const counts = zones.map(z=>z.nums.reduce((s,n)=>s+(freq[n]||0),0));
+  const colors = ['#f59e0b','#3b82f6','#ef4444','#6b7280','#10b981'];
+  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
+  if (zoneChart) zoneChart.destroy();
+  zoneChart = new Chart(document.getElementById('zone-chart'),{
+    type:'bar',
+    data:{labels:zones.map(z=>z.label),datasets:[{data:counts,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}회 출현`}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:isDark?'#98989f':'#6b7280',font:{size:12}}},
+        y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'},ticks:{color:isDark?'#98989f':'#6b7280',font:{size:11}}}
+      }
+    }
+  });
+}
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['hot','cold','zone'].forEach(t=>{ document.getElementById(`tab-${t}`).style.display=t===tab?'':'none'; });
+  if (tab==='zone' && historyData.length) renderZone(calcFreq(historyData));
+}
+
+// ── 초기화 ────────────────────────────────────────
+async function init() {
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  renderSaved();
+
+  try {
+    document.getElementById('round-badge').textContent = '최신 회차 탐색 중...';
+    latestRound = await findLatest();
+    document.getElementById('round-badge').textContent = `제 ${latestRound+1}회 추첨 대기 중`;
+    document.getElementById('badge-dot').className = 'badge-dot';
+
+    const latest = await fetchRound(latestRound);
+    renderPrev(latest);
+
+    document.getElementById('hot-grid').innerHTML =
+      '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 최근 100회 데이터 수집 중...</div>';
+
+    historyData = await loadHistory(latestRound, 100);
+    renderHot(calcFreq(historyData));
+    renderCold(calcLastSeen(historyData));
+
+  } catch(e) {
+    document.getElementById('round-badge').textContent = 'API 연결 실패';
+    document.getElementById('badge-dot').className = 'badge-dot error';
+    document.getElementById('prev-balls').innerHTML =
+      '<div class="error-box">동행복권 API에 접근할 수 없습니다.<br>잠시 후 새로고침해 주세요.</div>';
+    document.getElementById('hot-grid').innerHTML =
+      '<div class="error-box" style="grid-column:1/-1">데이터를 불러올 수 없습니다.</div>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
