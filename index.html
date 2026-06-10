@@ -90,7 +90,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-box{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem;text-align:center;color:var(--text2);font-size:13px;line-height:1.7}
-.updated-info{font-size:11px;color:var(--text3);text-align:right;margin-top:8px}
 .disclaimer{margin-top:1.5rem;padding:1rem;background:var(--bg2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);text-align:center;line-height:1.7}
 </style>
 </head>
@@ -102,7 +101,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <span id="round-badge">데이터 불러오는 중...</span>
     </div>
     <h1>로또 번호 추천</h1>
-    <p>동행복권 실시간 데이터 · 재미 목적 통계 분석</p>
+    <p>실제 당첨 데이터 기반 · 재미 목적 통계 분석</p>
   </div>
 
   <div class="countdown">
@@ -125,7 +124,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="balls-row" id="prev-balls">
         <div class="loading"><div class="spinner"></div> 데이터 불러오는 중...</div>
       </div>
-      <div class="updated-info" id="updated-info"></div>
     </div>
   </div>
 
@@ -205,10 +203,24 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <script>
+// ── 상태 ──────────────────────────────────────────
 let historyData = [];
 let currentStrategy = null;
 let savedNumbers = JSON.parse(localStorage.getItem('lotto_saved') || '[]');
 let zoneChart = null;
+
+// ── 공개 API (smok95.github.io/lotto) ────────────
+const API = 'https://smok95.github.io/lotto/results';
+
+async function fetchLatest() {
+  const res = await fetch(`${API}/latest.json`);
+  return res.json();
+}
+
+async function fetchRound(no) {
+  const res = await fetch(`${API}/${no}.json`);
+  return res.json();
+}
 
 // ── 색상 ──────────────────────────────────────────
 function ballColor(n) {
@@ -224,13 +236,6 @@ function makeBall(n, size = 38) {
   el.style.cssText = `width:${size}px;height:${size}px;font-size:${size < 32 ? 11 : 13}px;background:${ballColor(n)}`;
   el.textContent = n;
   return el;
-}
-
-// ── 데이터 로드 (GitHub에서 JSON 파일 직접 읽기) ──
-async function loadData() {
-  const res = await fetch('/data/lotto.json?t=' + Date.now());
-  const json = await res.json();
-  return json;
 }
 
 // ── 카운트다운 ─────────────────────────────────────
@@ -255,18 +260,19 @@ function updateCountdown() {
 }
 
 // ── 지난 회 렌더 ──────────────────────────────────
-function renderPrev(round) {
-  document.getElementById('prev-round').textContent = `제 ${round.drwNo}회 당첨번호`;
-  document.getElementById('prev-date').textContent = round.drwNoDate || '';
+function renderPrev(d) {
+  document.getElementById('prev-round').textContent = `제 ${d.draw_no}회 당첨번호`;
+  const date = d.date ? d.date.substring(0,10) : '';
+  document.getElementById('prev-date').textContent = date;
   const row = document.getElementById('prev-balls');
   row.innerHTML = '';
-  round.nums.forEach(n => row.appendChild(makeBall(n)));
+  d.numbers.forEach(n => row.appendChild(makeBall(n)));
   const sep = document.createElement('span'); sep.className='ball-sep'; sep.textContent='+';
   row.appendChild(sep);
   const bonus = document.createElement('div');
   bonus.className = 'ball-bonus';
   bonus.style.cssText = `width:38px;height:38px;font-size:13px`;
-  bonus.textContent = round.bonus;
+  bonus.textContent = d.bonus_no;
   row.appendChild(bonus);
 }
 
@@ -274,19 +280,19 @@ function renderPrev(round) {
 function calcFreq(data) {
   const f = {};
   for (let i = 1; i <= 45; i++) f[i] = 0;
-  data.forEach(d => d.nums.forEach(n => { if (n) f[n]++; }));
+  data.forEach(d => d.numbers.forEach(n => { if (n) f[n]++; }));
   return f;
 }
 function calcLastSeen(data) {
   const ls = {};
   for (let i = 1; i <= 45; i++) ls[i] = 999;
   [...data].reverse().forEach((d, i) =>
-    d.nums.forEach(n => { if (n && ls[n] === 999) ls[n] = i; })
+    d.numbers.forEach(n => { if (n && ls[n] === 999) ls[n] = i; })
   );
   return ls;
 }
 
-// ── 전략 선택 ─────────────────────────────────────
+// ── 전략 ──────────────────────────────────────────
 function selectStrategy(el) {
   document.querySelectorAll('.s-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -485,42 +491,41 @@ async function init() {
   renderSaved();
 
   try {
-    const json = await loadData();
+    // 최신 회차 가져오기
+    const latest = await fetchLatest();
+    const latestNo = latest.draw_no;
 
-    if (!json.latest || json.latest === 0) {
-      throw new Error('데이터가 아직 수집되지 않았습니다');
-    }
-
-    // 회차 데이터를 배열로 변환
-    const rounds = Object.values(json.rounds).sort((a,b)=>a.drwNo-b.drwNo);
-    historyData = rounds;
-
-    // 최신 회차 표시
-    const latest = json.rounds[json.latest];
-    document.getElementById('round-badge').textContent = `제 ${json.latest + 1}회 추첨 대기 중`;
+    document.getElementById('round-badge').textContent = `제 ${latestNo + 1}회 추첨 대기 중`;
     document.getElementById('badge-dot').className = 'badge-dot';
     renderPrev(latest);
 
-    // 업데이트 시각
-    if (json.updatedAt) {
-      const d = new Date(json.updatedAt);
-      document.getElementById('updated-info').textContent =
-        `마지막 업데이트: ${d.toLocaleDateString('ko-KR')} ${d.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'})}`;
+    // 최근 100회 병렬 수집
+    document.getElementById('hot-grid').innerHTML =
+      '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 최근 100회 분석 중...</div>';
+
+    const startNo = Math.max(1, latestNo - 99);
+    const rounds = Array.from({length: latestNo - startNo + 1}, (_, i) => startNo + i);
+
+    // 10개씩 묶어서 수집
+    const results = [];
+    for (let i = 0; i < rounds.length; i += 10) {
+      const batch = rounds.slice(i, i + 10);
+      const batchResults = await Promise.all(batch.map(no => fetchRound(no).catch(() => null)));
+      results.push(...batchResults.filter(Boolean));
     }
 
-    // 통계 렌더
-    const freq = calcFreq(historyData);
-    const lastSeen = calcLastSeen(historyData);
-    renderHot(freq);
-    renderCold(lastSeen);
+    historyData = results;
+    renderHot(calcFreq(historyData));
+    renderCold(calcLastSeen(historyData));
 
   } catch(e) {
-    document.getElementById('round-badge').textContent = '데이터 준비 중';
-    document.getElementById('badge-dot').className = 'badge-dot loading';
+    document.getElementById('round-badge').textContent = '연결 실패';
+    document.getElementById('badge-dot').className = 'badge-dot error';
     document.getElementById('prev-balls').innerHTML =
-      '<div class="error-box">데이터를 수집 중입니다.<br>GitHub Actions가 처음 실행된 후 이용 가능합니다.<br><br>아래 수동 실행 방법을 따라주세요.</div>';
+      '<div class="error-box">데이터를 불러올 수 없습니다.<br>잠시 후 새로고침해 주세요.</div>';
     document.getElementById('hot-grid').innerHTML =
-      '<div class="error-box" style="grid-column:1/-1">데이터 수집 후 표시됩니다.</div>';
+      '<div class="error-box" style="grid-column:1/-1">데이터 없음</div>';
+    console.error(e);
   }
 }
 
@@ -528,3 +533,4 @@ init();
 </script>
 </body>
 </html>
+HTMLEOF
