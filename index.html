@@ -30,30 +30,22 @@
 }
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
 .app{max-width:680px;margin:0 auto;padding:1.25rem 1rem 2rem}
-
-/* Header */
 .header{text-align:center;padding:1.5rem 0 1.25rem}
 .header-badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:999px;padding:5px 14px;font-size:12px;color:var(--text2);margin-bottom:14px}
 .badge-dot{width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;animation:pulse 2s infinite}
 .badge-dot.error{background:#ef4444;animation:none}
-.badge-dot.loading{background:#f59e0b}
+.badge-dot.loading{background:#f59e0b;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .header h1{font-size:24px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px}
 .header p{font-size:13px;color:var(--text2)}
-
-/* Countdown */
 .countdown{display:flex;justify-content:center;align-items:center;gap:6px;margin:14px 0 0}
 .cd-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;text-align:center;min-width:58px}
 .cd-num{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .cd-sep{font-size:20px;font-weight:300;color:var(--text3);padding-bottom:6px}
 .cd-label{font-size:10px;color:var(--text2);margin-top:4px;letter-spacing:0.05em}
-
-/* Section */
 .section{margin-top:1.5rem}
 .section-label{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
 .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem}
-
-/* Prev draw */
 .prev-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .prev-round{font-size:14px;font-weight:700}
 .prev-date{font-size:12px;color:var(--text2)}
@@ -61,8 +53,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .ball{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
 .ball-bonus{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;border:2.5px dashed var(--border2);color:var(--text2);flex-shrink:0}
 .ball-sep{font-size:16px;color:var(--text3)}
-
-/* Strategy */
 .strategy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .s-card{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative;user-select:none;-webkit-tap-highlight-color:transparent}
 .s-card:hover{border-color:var(--border2);background:var(--bg2)}
@@ -72,8 +62,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .s-desc{font-size:12px;color:var(--text2);line-height:1.5}
 .s-rec{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e}
 @media(prefers-color-scheme:dark){.s-rec{background:#451a03;color:#fcd34d}}
-
-/* Recommend */
 .rec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .rec-title{font-size:15px;font-weight:700}
 .btn-regen{display:flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 13px;font-size:12px;cursor:pointer;color:var(--text);font-family:'Noto Sans KR',sans-serif;-webkit-tap-highlight-color:transparent}
@@ -83,40 +71,31 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .combo-idx{font-size:11px;font-weight:700;color:var(--text3);min-width:18px}
 .combo-balls{display:flex;gap:5px;flex:1}
 .combo-tag{font-size:10px;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--text2);white-space:nowrap;font-weight:500}
-.combo-save{background:transparent;border:none;cursor:pointer;font-size:20px;padding:0 2px;line-height:1;color:var(--text3);transition:color 0.1s;-webkit-tap-highlight-color:transparent}
+.combo-save{background:transparent;border:none;cursor:pointer;font-size:20px;padding:0 2px;line-height:1;color:var(--text3);-webkit-tap-highlight-color:transparent}
 .combo-save:hover,.combo-save.saved{color:#f59e0b}
 .placeholder{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:14px}
-
-/* Saved */
 .saved-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 .saved-item:last-child{border-bottom:none}
 .btn-del{background:transparent;border:none;cursor:pointer;font-size:16px;color:var(--text3);padding:0 4px;-webkit-tap-highlight-color:transparent}
 .btn-clear{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif}
-
-/* Stats */
 .tab-row{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--radius-sm);margin-bottom:14px}
-.tab{flex:1;padding:7px 4px;font-size:12px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:background 0.1s,color 0.1s;-webkit-tap-highlight-color:transparent}
+.tab{flex:1;padding:7px 4px;font-size:12px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;font-weight:500;-webkit-tap-highlight-color:transparent}
 .tab.active{background:var(--bg);color:var(--text);border:1px solid var(--border);font-weight:700}
 .freq-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .freq-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;background:var(--bg2);border-radius:var(--radius-sm)}
 .freq-bar-wrap{height:36px;display:flex;align-items:flex-end;width:100%}
 .freq-bar{width:100%;border-radius:2px 2px 0 0}
 .freq-cnt{font-size:10px;color:var(--text2)}
-
-/* Loading / Error */
 .loading{text-align:center;padding:1.5rem;color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px}
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-box{background:var(--bg2);border-radius:var(--radius-sm);padding:1rem;text-align:center;color:var(--text2);font-size:13px;line-height:1.7}
-
-/* Disclaimer */
+.updated-info{font-size:11px;color:var(--text3);text-align:right;margin-top:8px}
 .disclaimer{margin-top:1.5rem;padding:1rem;background:var(--bg2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);text-align:center;line-height:1.7}
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- Header -->
   <div class="header">
     <div class="header-badge">
       <span class="badge-dot loading" id="badge-dot"></span>
@@ -126,7 +105,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <p>동행복권 실시간 데이터 · 재미 목적 통계 분석</p>
   </div>
 
-  <!-- Countdown -->
   <div class="countdown">
     <div class="cd-box"><div class="cd-num" id="cd-d">--</div><div class="cd-label">일</div></div>
     <div class="cd-sep">:</div>
@@ -137,7 +115,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="cd-box"><div class="cd-num" id="cd-s">--</div><div class="cd-label">초</div></div>
   </div>
 
-  <!-- Prev Draw -->
   <div class="section">
     <div class="section-label">지난 회 당첨번호</div>
     <div class="card">
@@ -146,29 +123,29 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <span class="prev-date" id="prev-date"></span>
       </div>
       <div class="balls-row" id="prev-balls">
-        <div class="loading"><div class="spinner"></div> API 연결 중...</div>
+        <div class="loading"><div class="spinner"></div> 데이터 불러오는 중...</div>
       </div>
+      <div class="updated-info" id="updated-info"></div>
     </div>
   </div>
 
-  <!-- Strategy -->
   <div class="section">
     <div class="section-label">추천 전략 선택</div>
     <div class="strategy-grid">
       <div class="s-card" data-strategy="freq" onclick="selectStrategy(this)">
         <div class="s-ico">📊</div>
         <div class="s-name">빈도수 전략</div>
-        <div class="s-desc">최근 100회 기준 자주 등장한 번호 우선 선택</div>
+        <div class="s-desc">최근 100회 자주 등장한 번호 우선 선택</div>
       </div>
       <div class="s-card" data-strategy="zone" onclick="selectStrategy(this)">
         <div class="s-ico">🔲</div>
         <div class="s-name">구간 분산 전략</div>
-        <div class="s-desc">1~9, 10~19, 20~29, 30~39, 40~45 구간 균등 배분</div>
+        <div class="s-desc">1~9, 10~19, 20~29, 30~39, 40~45 균등 배분</div>
       </div>
       <div class="s-card" data-strategy="oddeven" onclick="selectStrategy(this)">
         <div class="s-ico">⚖️</div>
         <div class="s-name">홀짝 균형 전략</div>
-        <div class="s-desc">홀수 3개 + 짝수 3개의 균형 잡힌 조합 구성</div>
+        <div class="s-desc">홀수 3개 + 짝수 3개 균형 조합</div>
       </div>
       <div class="s-card" data-strategy="ai" onclick="selectStrategy(this)">
         <div class="s-ico">✨</div>
@@ -179,7 +156,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     </div>
   </div>
 
-  <!-- Recommend -->
   <div class="section">
     <div class="section-label">추천 번호</div>
     <div class="card">
@@ -193,7 +169,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     </div>
   </div>
 
-  <!-- Saved -->
   <div class="section" id="saved-section" style="display:none">
     <div class="section-label">저장한 번호</div>
     <div class="card">
@@ -205,7 +180,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="section">
     <div class="section-label">번호 통계</div>
     <div class="card">
@@ -214,11 +188,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <button class="tab" onclick="switchTab('cold',this)">오래 안 나온 번호</button>
         <button class="tab" onclick="switchTab('zone',this)">구간별 빈도</button>
       </div>
-      <div id="tab-hot">
-        <div class="freq-grid" id="hot-grid">
-          <div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 데이터 분석 중...</div>
-        </div>
-      </div>
+      <div id="tab-hot"><div class="freq-grid" id="hot-grid"><div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 분석 중...</div></div></div>
       <div id="tab-cold" style="display:none"><div class="freq-grid" id="cold-grid"></div></div>
       <div id="tab-zone" style="display:none">
         <div style="position:relative;width:100%;height:200px">
@@ -235,49 +205,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 </div>
 
 <script>
-// ── 상태 ──────────────────────────────────────────
 let historyData = [];
-let latestRound = 0;
 let currentStrategy = null;
 let savedNumbers = JSON.parse(localStorage.getItem('lotto_saved') || '[]');
 let zoneChart = null;
-
-// ── API: 상대경로로 Vercel Function 호출 ──────────
-async function fetchRound(round) {
-  const res = await fetch(`/api/lotto?drwNo=${round}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-async function findLatest() {
-  // 현재 날짜 기반으로 예상 회차 계산 (2002년 12월 7일 1회 시작)
-  const start = new Date('2002-12-07');
-  const now = new Date();
-  const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
-  let hi = weeks + 2, lo = hi - 5;
-
-  // 이진 탐색으로 최신 회차 확정
-  while (lo < hi) {
-    const mid = Math.ceil((lo + hi) / 2);
-    try {
-      const d = await fetchRound(mid);
-      if (d.returnValue === 'success') lo = mid; else hi = mid - 1;
-    } catch { hi = mid - 1; }
-  }
-  return lo;
-}
-
-async function loadHistory(latest, n = 100) {
-  const start = Math.max(1, latest - n + 1);
-  const rounds = Array.from({ length: latest - start + 1 }, (_, i) => start + i);
-  // 병렬 호출 (5개씩 묶어서 서버 부하 방지)
-  const results = [];
-  for (let i = 0; i < rounds.length; i += 5) {
-    const batch = rounds.slice(i, i + 5).map(r => fetchRound(r).catch(() => null));
-    results.push(...await Promise.all(batch));
-  }
-  return results.filter(r => r && r.returnValue === 'success');
-}
 
 // ── 색상 ──────────────────────────────────────────
 function ballColor(n) {
@@ -287,7 +218,6 @@ function ballColor(n) {
   if (n <= 40) return '#6b7280';
   return '#10b981';
 }
-
 function makeBall(n, size = 38) {
   const el = document.createElement('div');
   el.className = 'ball';
@@ -296,7 +226,14 @@ function makeBall(n, size = 38) {
   return el;
 }
 
-// ── 카운트다운 ────────────────────────────────────
+// ── 데이터 로드 (GitHub에서 JSON 파일 직접 읽기) ──
+async function loadData() {
+  const res = await fetch('/data/lotto.json?t=' + Date.now());
+  const json = await res.json();
+  return json;
+}
+
+// ── 카운트다운 ─────────────────────────────────────
 function nextSaturday() {
   const now = new Date();
   const diff = ((6 - now.getDay()) + 7) % 7 || 7;
@@ -318,18 +255,18 @@ function updateCountdown() {
 }
 
 // ── 지난 회 렌더 ──────────────────────────────────
-function renderPrev(d) {
-  document.getElementById('prev-round').textContent = `제 ${d.drwNo}회 당첨번호`;
-  document.getElementById('prev-date').textContent = d.drwNoDate || '';
+function renderPrev(round) {
+  document.getElementById('prev-round').textContent = `제 ${round.drwNo}회 당첨번호`;
+  document.getElementById('prev-date').textContent = round.drwNoDate || '';
   const row = document.getElementById('prev-balls');
   row.innerHTML = '';
-  [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6].forEach(n => row.appendChild(makeBall(n)));
+  round.nums.forEach(n => row.appendChild(makeBall(n)));
   const sep = document.createElement('span'); sep.className='ball-sep'; sep.textContent='+';
   row.appendChild(sep);
   const bonus = document.createElement('div');
   bonus.className = 'ball-bonus';
   bonus.style.cssText = `width:38px;height:38px;font-size:13px`;
-  bonus.textContent = d.bnusNo;
+  bonus.textContent = round.bonus;
   row.appendChild(bonus);
 }
 
@@ -337,22 +274,19 @@ function renderPrev(d) {
 function calcFreq(data) {
   const f = {};
   for (let i = 1; i <= 45; i++) f[i] = 0;
-  data.forEach(d => [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6]
-    .forEach(n => { if (n) f[n]++; }));
+  data.forEach(d => d.nums.forEach(n => { if (n) f[n]++; }));
   return f;
 }
 function calcLastSeen(data) {
   const ls = {};
   for (let i = 1; i <= 45; i++) ls[i] = 999;
   [...data].reverse().forEach((d, i) =>
-    [d.drwtNo1,d.drwtNo2,d.drwtNo3,d.drwtNo4,d.drwtNo5,d.drwtNo6].forEach(n => {
-      if (n && ls[n] === 999) ls[n] = i;
-    })
+    d.nums.forEach(n => { if (n && ls[n] === 999) ls[n] = i; })
   );
   return ls;
 }
 
-// ── 전략 ──────────────────────────────────────────
+// ── 전략 선택 ─────────────────────────────────────
 function selectStrategy(el) {
   document.querySelectorAll('.s-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -362,9 +296,8 @@ function selectStrategy(el) {
 }
 
 function generateNumbers() {
-  if (!currentStrategy) return;
-  if (!historyData.length) {
-    document.getElementById('combo-list').innerHTML = '<div class="placeholder">데이터 로딩 중입니다. 잠시 후 다시 시도해주세요.</div>';
+  if (!currentStrategy || !historyData.length) {
+    document.getElementById('combo-list').innerHTML = '<div class="placeholder">데이터 로딩 중입니다.</div>';
     return;
   }
   const freq = calcFreq(historyData);
@@ -372,7 +305,6 @@ function generateNumbers() {
   const names = { freq:'빈도수 전략', zone:'구간 분산 전략', oddeven:'홀짝 균형 전략', ai:'AI 종합 추천' };
   const tags  = { freq:'고빈도', zone:'균등분산', oddeven:'홀짝3:3', ai:'AI최적' };
   document.getElementById('rec-title').textContent = names[currentStrategy];
-
   const combos = Array.from({ length: 5 }, () => ({
     nums: pickNums(freq, lastSeen, currentStrategy).sort((a,b)=>a-b),
     tag: tags[currentStrategy]
@@ -410,10 +342,7 @@ function pickNums(freq, lastSeen, strategy) {
     let tries = 0;
     while (nums.length < 6 && tries++ < 300) {
       let r = Math.random() * wTotal;
-      for (let n = 1; n <= 45; n++) {
-        r -= weights[n];
-        if (r <= 0 && !nums.includes(n)) { nums.push(n); break; }
-      }
+      for (let n = 1; n <= 45; n++) { r -= weights[n]; if (r <= 0 && !nums.includes(n)) { nums.push(n); break; } }
     }
     for (let n = 1; n <= 45 && nums.length < 6; n++) if (!nums.includes(n)) nums.push(n);
   }
@@ -556,28 +485,42 @@ async function init() {
   renderSaved();
 
   try {
-    document.getElementById('round-badge').textContent = '최신 회차 탐색 중...';
-    latestRound = await findLatest();
-    document.getElementById('round-badge').textContent = `제 ${latestRound+1}회 추첨 대기 중`;
-    document.getElementById('badge-dot').className = 'badge-dot';
+    const json = await loadData();
 
-    const latest = await fetchRound(latestRound);
+    if (!json.latest || json.latest === 0) {
+      throw new Error('데이터가 아직 수집되지 않았습니다');
+    }
+
+    // 회차 데이터를 배열로 변환
+    const rounds = Object.values(json.rounds).sort((a,b)=>a.drwNo-b.drwNo);
+    historyData = rounds;
+
+    // 최신 회차 표시
+    const latest = json.rounds[json.latest];
+    document.getElementById('round-badge').textContent = `제 ${json.latest + 1}회 추첨 대기 중`;
+    document.getElementById('badge-dot').className = 'badge-dot';
     renderPrev(latest);
 
-    document.getElementById('hot-grid').innerHTML =
-      '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div> 최근 100회 데이터 수집 중...</div>';
+    // 업데이트 시각
+    if (json.updatedAt) {
+      const d = new Date(json.updatedAt);
+      document.getElementById('updated-info').textContent =
+        `마지막 업데이트: ${d.toLocaleDateString('ko-KR')} ${d.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'})}`;
+    }
 
-    historyData = await loadHistory(latestRound, 100);
-    renderHot(calcFreq(historyData));
-    renderCold(calcLastSeen(historyData));
+    // 통계 렌더
+    const freq = calcFreq(historyData);
+    const lastSeen = calcLastSeen(historyData);
+    renderHot(freq);
+    renderCold(lastSeen);
 
   } catch(e) {
-    document.getElementById('round-badge').textContent = 'API 연결 실패';
-    document.getElementById('badge-dot').className = 'badge-dot error';
+    document.getElementById('round-badge').textContent = '데이터 준비 중';
+    document.getElementById('badge-dot').className = 'badge-dot loading';
     document.getElementById('prev-balls').innerHTML =
-      '<div class="error-box">동행복권 API에 접근할 수 없습니다.<br>잠시 후 새로고침해 주세요.</div>';
+      '<div class="error-box">데이터를 수집 중입니다.<br>GitHub Actions가 처음 실행된 후 이용 가능합니다.<br><br>아래 수동 실행 방법을 따라주세요.</div>';
     document.getElementById('hot-grid').innerHTML =
-      '<div class="error-box" style="grid-column:1/-1">데이터를 불러올 수 없습니다.</div>';
+      '<div class="error-box" style="grid-column:1/-1">데이터 수집 후 표시됩니다.</div>';
   }
 }
 
