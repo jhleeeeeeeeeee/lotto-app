@@ -159,7 +159,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="card">
       <div class="rec-header">
         <span class="rec-title" id="rec-title">전략을 선택하면 번호가 생성됩니다</span>
-        <button class="btn-regen" onclick="generateNumbers()" id="btn-regen" style="display:none">🔄 다시 생성</button>
+        <button class="btn-regen" onclick="generateNumbers(true)" id="btn-regen" style="display:none">🔄 다시 생성</button>
       </div>
       <div class="combo-list" id="combo-list">
         <div class="placeholder">위에서 전략을 선택해주세요</div>
@@ -292,29 +292,69 @@ function calcLastSeen(data) {
   return ls;
 }
 
+// ── 주차 키 (토요일 오후 10시 기준) ──────────────
+function getWeekKey() {
+  const now = new Date();
+  // 이번 주 토요일 오후 10시 (KST) 기준점 계산
+  const day = now.getDay(); // 0=일, 6=토
+  const sat = new Date(now);
+  // 이번 주 토요일로 이동
+  sat.setDate(now.getDate() + ((6 - day + 7) % 7));
+  sat.setHours(22, 0, 0, 0);
+  // 지금이 이번 주 토요일 오후 10시 이전이면 → 저번 주 토요일이 기준
+  if (now < sat) sat.setDate(sat.getDate() - 7);
+  return `week_${sat.getFullYear()}_${sat.getMonth()}_${sat.getDate()}`;
+}
+
+function loadSavedCombos(strategy) {
+  const key = `lotto_combos_${strategy}_${getWeekKey()}`;
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : null;
+}
+
+function saveCombos(strategy, combos) {
+  const key = `lotto_combos_${strategy}_${getWeekKey()}`;
+  localStorage.setItem(key, JSON.stringify(combos));
+  // 오래된 주차 데이터 정리
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('lotto_combos_') && !k.includes(getWeekKey())) {
+      localStorage.removeItem(k);
+    }
+  });
+}
+
 // ── 전략 ──────────────────────────────────────────
 function selectStrategy(el) {
   document.querySelectorAll('.s-card').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentStrategy = el.dataset.strategy;
   document.getElementById('btn-regen').style.display = 'flex';
-  generateNumbers();
+  generateNumbers(false); // false = 강제 재생성 아님
 }
 
-function generateNumbers() {
+function generateNumbers(forceNew = true) {
   if (!currentStrategy || !historyData.length) {
     document.getElementById('combo-list').innerHTML = '<div class="placeholder">데이터 로딩 중입니다.</div>';
     return;
   }
-  const freq = calcFreq(historyData);
-  const lastSeen = calcLastSeen(historyData);
   const names = { freq:'빈도수 전략', zone:'구간 분산 전략', oddeven:'홀짝 균형 전략', ai:'AI 종합 추천' };
   const tags  = { freq:'고빈도', zone:'균등분산', oddeven:'홀짝3:3', ai:'AI최적' };
   document.getElementById('rec-title').textContent = names[currentStrategy];
+
+  // 저장된 번호가 있고 강제 재생성이 아니면 → 기존 번호 표시
+  if (!forceNew) {
+    const saved = loadSavedCombos(currentStrategy);
+    if (saved) { renderCombos(saved); return; }
+  }
+
+  // 새 번호 생성
+  const freq = calcFreq(historyData);
+  const lastSeen = calcLastSeen(historyData);
   const combos = Array.from({ length: 5 }, () => ({
     nums: pickNums(freq, lastSeen, currentStrategy).sort((a,b)=>a-b),
     tag: tags[currentStrategy]
   }));
+  saveCombos(currentStrategy, combos);
   renderCombos(combos);
 }
 
